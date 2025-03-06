@@ -1,73 +1,142 @@
-<script>
+<script setup >
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { wineRegions } from './data/wine-regions';
+import LazyImage from './assets/LazyImage.vue';
+import { wineRegions as originalWineRegions } from './data/wine-regions';
 
-export default {
-  setup() {
-    const selectedRegion = ref(null);
-    const rippleInterval = ref(null);
+// Importaciones de imágenes ya existentes
+import juntaCylLogo from './assets/logos/junta-cyl.png';
+import spainWinesLogo from './assets/logos/spain-wines.png';
+import redWineIcon from './assets/images/info/red.png';
+import whiteWineIcon from './assets/images/info/white.png';
+import roseWineIcon from './assets/images/info/rose.png';
+import sparklingWineIcon from './assets/images/info/sparkling.png';
+import europaMap from './assets/images/europa.jpg';
+import spainMap from './assets/images/spain.jpg';
+import defaultRegionMap from './assets/images/content/region-0.jpg';
 
-    const showRippleEffect = computed(() => {
-      return true; // Siempre mostramos el ripple, pero cambia dónde se muestra
-    });
+// Importaciones de logos de regiones
+import arlanzaLogo from './assets/logos/arlanza.jpg';
+import arribesLogo from './assets/logos/arribes.jpg';
+import bierzoLogo from './assets/logos/bierzo.jpg';
+import castillaLogo from './assets/logos/castilla.jpg';
+import cebrerosLogo from './assets/logos/cebreros.jpg';
+import cigalesLogo from './assets/logos/cigales.jpg';
+import dummyLogo from './assets/logos/dummy.jpg';
+import riberaLogo from './assets/logos/ribera.jpg';
+import riojaLogo from './assets/logos/rioja.jpg';
+import ruedaLogo from './assets/logos/rueda.jpg';
+import salamancaLogo from './assets/logos/salamanca.jpg';
+import tierraLogo from './assets/logos/tierra.jpg';
+import toroLogo from './assets/logos/toro.jpg';
+import vallesLogo from './assets/logos/valles.jpg';
+import valtiendasLogo from './assets/logos/valtiendas.jpg';
+import vinoLogo from './assets/logos/vino.jpg';
 
-    const showRippleOnFirstItem = computed(() => {
-      return !selectedRegion.value;
-    });
+// Mapeo de logos por identificador o nombre (ajusta según tu estructura de datos)
+const logoMap = {
+  'arlanza': arlanzaLogo,
+  'arribes': arribesLogo,
+  'bierzo': bierzoLogo,
+  'castilla': castillaLogo,
+  'cebreros': cebrerosLogo,
+  'cigales': cigalesLogo,
+  'ribera': riberaLogo,
+  'rioja': riojaLogo,
+  'rueda': ruedaLogo,
+  'salamanca': salamancaLogo,
+  'tierra': tierraLogo,
+  'toro': toroLogo,
+  'valles': vallesLogo,
+  'valtiendas': valtiendasLogo,
+  'vino': vinoLogo,
+  'default': dummyLogo
+};
 
-    const showRippleOnReturnButton = computed(() => {
-      return !!selectedRegion.value;
-    });
+// Función para obtener el logo correcto basado en el ID o nombre de la región
+const getLogoForRegion = (region) => {
+  // Intenta obtener por el ID exacto si existe
+  if (region.logo && typeof region.logo === 'string') {
+    // Extrae el nombre del archivo del logo actual (sin la ruta ni extensión)
+    const logoFileName = region.logo.split('/').pop().split('.')[0].toLowerCase();
 
-    const selectRegion = (region) => {
-      selectedRegion.value = region;
-      highlightMapRegion(region?.mapRegionId);
+    // Busca en el mapa de logos
+    if (logoMap[logoFileName]) {
+      return logoMap[logoFileName];
+    }
 
-      if (rippleInterval.value) {
-        clearInterval(rippleInterval.value);
-        rippleInterval.value = null;
+    // Intenta por nombre de región si está disponible
+    if (region.name) {
+      const regionNameKey = region.name.toLowerCase().split(' ')[0]; // Toma la primera palabra
+      if (logoMap[regionNameKey]) {
+        return logoMap[regionNameKey];
       }
-
-      // Reiniciamos el efecto ripple cuando se selecciona una región
-      // ahora aparecerá en el botón de retorno
-      startRippleEffect();
-    };
-
-    const highlightMapRegion = (regionId) => {
-      console.log(`Resaltando región: ${regionId}`);
-    };
-
-    onMounted(() => {
-      startRippleEffect();
-    });
-
-    onBeforeUnmount(() => {
-      if (rippleInterval.value) {
-        clearInterval(rippleInterval.value);
-      }
-    });
-
-    const startRippleEffect = () => {
-      rippleInterval.value = setInterval(() => {
-        const rippleElement = document.querySelector('.ripple-container');
-        if (rippleElement) {
-          rippleElement.classList.remove('animate-ripple');
-          void rippleElement.offsetWidth;
-          rippleElement.classList.add('animate-ripple');
-        }
-      }, 3000);
-    };
-
-    return {
-      wineRegions,
-      selectedRegion,
-      selectRegion,
-      showRippleEffect,
-      showRippleOnFirstItem,
-      showRippleOnReturnButton
-    };
+    }
   }
-}
+
+  // Logo por defecto si no se encuentra coincidencia
+  return dummyLogo;
+};
+
+// Actualiza los wineRegions con los logos importados
+const wineRegions = originalWineRegions.map(region => ({
+  ...region,
+  logo: getLogoForRegion(region)
+}));
+
+const getRegionImage = (regionId) => {
+  return new URL(`./assets/images/content/${regionId}.jpg`, import.meta.url).href;
+};
+
+const getRegionMapImage = (regionId) => {
+  return new URL(`./assets/images/regions/${regionId}.jpg`, import.meta.url).href;
+};
+
+const selectedRegion = ref(null);
+const rippleInterval = ref(null);
+
+const showRippleOnFirstItem = computed(() => {
+  return !selectedRegion.value;
+});
+
+const showRippleOnReturnButton = computed(() => {
+  return !!selectedRegion.value;
+});
+
+const selectRegion = (region) => {
+  selectedRegion.value = region;
+
+  if (rippleInterval.value) {
+    clearInterval(rippleInterval.value);
+    rippleInterval.value = null;
+  }
+  startRippleEffect();
+};
+
+onMounted(() => {
+  startRippleEffect();
+});
+
+onBeforeUnmount(() => {
+  if (rippleInterval.value) {
+    clearInterval(rippleInterval.value);
+  }
+});
+
+const startRippleEffect = () => {
+  rippleInterval.value = setInterval(() => {
+    const rippleElement = document.querySelector('.ripple-container');
+    if (rippleElement) {
+      rippleElement.classList.remove('animate-ripple');
+      void rippleElement.offsetWidth;
+      rippleElement.classList.add('animate-ripple');
+    }
+  }, 3000);
+};
+
+// Precargar imágenes (si se sigue necesitando esta función)
+const preloadImages = () => {
+  // Implementa aquí la lógica si necesitas precargar imágenes
+};
 </script>
 
 <template>
@@ -99,7 +168,7 @@ export default {
           <div class="region-item return">
             <span class="return-text">Return to map</span>
             <span class="return-arrow">↩</span>
-            <div v-if="showRippleOnReturnButton" class="ripple-container"></div>
+            <div v-if="showRippleOnReturnButton" class="ripple-container" />
           </div>
         </li>
       </ul>
@@ -108,23 +177,26 @@ export default {
     <div class="content">
       <header class="header">
         <div class="logo">
-          <img src="/logos/junta-cyl.png" alt="Junta de Castilla y León" />
+          <img :src="juntaCylLogo" alt="Junta de Castilla y León" v-once/>
         </div>
       </header>
 
       <div class="map-container">
         <transition name="fade" mode="out-in">
-          <img
-              :key="selectedRegion ? selectedRegion.mapRegionId : 'default'"
-              :src="selectedRegion ? '/images/content/' + selectedRegion.mapRegionId + '.jpg' : '/images/content/region-0.jpg'"
+          <LazyImage
+              v-if="selectedRegion"
+              :key="'region-' + selectedRegion.mapRegionId"
+              :src="getRegionImage(selectedRegion.mapRegionId)"
               :alt="selectedRegion ? selectedRegion.name : 'Whines from Castilla y León'"
-              class="map-image"
+              :img-class="'map-image'"
+              @load="preloadImages"
           />
+          <img v-else :key="'default-map'" :src="defaultRegionMap" alt="Whines from Castilla y León" class="map-image" />
         </transition>
       </div>
 
       <footer class="footer">
-        <img src="/logos/spain-wines.png" alt="Junta de Castilla y León" />
+        <img :src="spainWinesLogo" alt="Junta de Castilla y León" v-once/>
       </footer>
     </div>
 
@@ -142,19 +214,19 @@ export default {
         <p>VARIERIES</p>
         <div class="legend">
           <div class="legend-item">
-            <img class="variety red" src="/images/info/red.png" alt="Vino tinto" />
+            <img class="variety red" :src="redWineIcon" alt="Vino tinto" v-once/>
             <span>RED WINE</span>
           </div>
           <div class="legend-item">
-            <img class="variety white" src="/images/info/white.png" alt="Vino blanco" />
+            <img class="variety white" :src="whiteWineIcon" alt="Vino blanco" v-once/>
             <span>WHITE WINE</span>
           </div>
           <div class="legend-item">
-            <img class="variety rose" src="/images/info/rose.png" alt="Vino rosado" />
+            <img class="variety rose" :src="roseWineIcon" alt="Vino rosado" v-once/>
             <span>ROSÉ</span>
           </div>
           <div class="legend-item">
-            <img class="variety sparkling" src="/images/info/sparkling.png" alt="Vino espumoso" />
+            <img class="variety sparkling" :src="sparklingWineIcon" alt="Vino espumoso" v-once/>
             <span>SPARKLING WINE</span>
           </div>
         </div>
@@ -163,15 +235,26 @@ export default {
       </div>
 
       <div class="static-image">
-        <img src="/images/europa.jpg" alt="Mapa de España" />
+        <img :src="europaMap" alt="Mapa de España" v-once/>
       </div>
       <div class="gap-image"/>
       <div class="dynamic-image">
         <transition name="fade" mode="out-in">
-          <img
-              :key="selectedRegion ? selectedRegion.mapRegionId : 'default'"
-              :src="selectedRegion ? '/images/regions/' + selectedRegion.mapRegionId + '.jpg' : '/images/spain.jpg'"
-              :alt="selectedRegion ? selectedRegion.name : 'Mapa de España'"
+          <LazyImage
+              v-if="selectedRegion"
+              :key="'map-detail-' + selectedRegion.mapRegionId"
+              :src="getRegionMapImage(selectedRegion.mapRegionId)"
+              :alt="selectedRegion.name"
+              :img-class="'dynamic-map-image'"
+              @load="preloadImages"
+          />
+          <LazyImage
+              v-else
+              :key="'default-map-detail'"
+              :src="spainMap"
+              :alt="'Mapa de España'"
+              :img-class="'dynamic-map-image'"
+              @load="preloadImages"
           />
         </transition>
       </div>
@@ -482,5 +565,4 @@ h3 {
     box-shadow: 0 0 0 70px rgba(74, 178, 222, 0);
   }
 }
-
 </style>
