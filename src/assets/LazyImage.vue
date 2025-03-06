@@ -1,6 +1,8 @@
 <script>
 import { ref, onMounted, computed, watch } from 'vue';
 
+const globalImageCache = new Map();
+
 export default {
   props: {
     src: {
@@ -14,44 +16,60 @@ export default {
     imgClass: {
       type: String,
       default: ''
+    },
+    placeholder: {
+      type: String,
+      default: ''
     }
   },
   emits: ['load'],
   setup(props, { emit }) {
     const isLoaded = ref(false);
-    const cachedImages = ref(new Map());
+    const hasError = ref(false);
     const uniqueKey = ref(Date.now());
 
     const loadedSrc = computed(() => {
-      if (cachedImages.value.has(props.src)) {
+      if (globalImageCache.has(props.src)) {
         return props.src;
       }
-      return isLoaded.value ? props.src : '';
+      return isLoaded.value ? props.src : props.placeholder;
     });
 
     const preloadImage = () => {
-      if (cachedImages.value.has(props.src)) {
+      if (globalImageCache.has(props.src)) {
         isLoaded.value = true;
         emit('load');
         return;
       }
 
       const img = new Image();
+
       img.onload = () => {
         isLoaded.value = true;
-        cachedImages.value.set(props.src, true);
+        hasError.value = false;
+        globalImageCache.set(props.src, true);
         emit('load');
       };
+
+      img.onerror = () => {
+        hasError.value = true;
+        isLoaded.value = false;
+        console.error(`Failed to load image: ${props.src}`);
+      };
+
+      img.fetchPriority = 'high';
+      img.decoding = 'async';
       img.src = props.src;
     };
 
     const onLoaded = () => {
-      cachedImages.value.set(props.src, true);
+      globalImageCache.set(props.src, true);
       emit('load');
     };
 
     const resetComponent = () => {
       isLoaded.value = false;
+      hasError.value = false;
       uniqueKey.value = Date.now();
       preloadImage();
     };
@@ -70,6 +88,7 @@ export default {
       loadedSrc,
       onLoaded,
       isLoaded,
+      hasError,
       uniqueKey
     };
   }
@@ -84,9 +103,9 @@ export default {
       :class="imgClass"
       loading="eager"
       fetchpriority="high"
-      decoding="sync"
+      decoding="async"
       @load="onLoaded"
       :key="uniqueKey"
   />
-  <div v-else :class="imgClass" style="background-color: #f5f5f5;"></div>
+  <div v-else :class="imgClass" style="background-color: #f5f5f5; width: 100%; height: 100%;"></div>
 </template>

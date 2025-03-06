@@ -112,16 +112,6 @@ const selectRegion = (region) => {
   startRippleEffect();
 };
 
-onMounted(() => {
-  startRippleEffect();
-});
-
-onBeforeUnmount(() => {
-  if (rippleInterval.value) {
-    clearInterval(rippleInterval.value);
-  }
-});
-
 const startRippleEffect = () => {
   rippleInterval.value = setInterval(() => {
     const rippleElement = document.querySelector('.ripple-container');
@@ -133,10 +123,26 @@ const startRippleEffect = () => {
   }, 3000);
 };
 
-// Precargar imágenes (si se sigue necesitando esta función)
 const preloadImages = () => {
-  // Implementa aquí la lógica si necesitas precargar imágenes
+  wineRegions.forEach(region => {
+    const contentImg = new Image();
+    contentImg.src = getRegionImage(region.mapRegionId);
+
+    const mapImg = new Image();
+    mapImg.src = getRegionMapImage(region.mapRegionId);
+  });
 };
+
+onMounted(() => {
+  startRippleEffect();
+  preloadImages();
+});
+
+onBeforeUnmount(() => {
+  if (rippleInterval.value) {
+    clearInterval(rippleInterval.value);
+  }
+});
 </script>
 
 <template>
