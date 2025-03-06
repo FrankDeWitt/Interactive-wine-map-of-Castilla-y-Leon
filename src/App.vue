@@ -52,19 +52,14 @@ const logoMap = {
   'default': dummyLogo
 };
 
-// Función para obtener el logo correcto basado en el ID o nombre de la región
 const getLogoForRegion = (region) => {
-  // Intenta obtener por el ID exacto si existe
   if (region.logo && typeof region.logo === 'string') {
-    // Extrae el nombre del archivo del logo actual (sin la ruta ni extensión)
     const logoFileName = region.logo.split('/').pop().split('.')[0].toLowerCase();
 
-    // Busca en el mapa de logos
     if (logoMap[logoFileName]) {
       return logoMap[logoFileName];
     }
 
-    // Intenta por nombre de región si está disponible
     if (region.name) {
       const regionNameKey = region.name.toLowerCase().split(' ')[0]; // Toma la primera palabra
       if (logoMap[regionNameKey]) {
@@ -73,11 +68,9 @@ const getLogoForRegion = (region) => {
     }
   }
 
-  // Logo por defecto si no se encuentra coincidencia
   return dummyLogo;
 };
 
-// Actualiza los wineRegions con los logos importados
 const wineRegions = originalWineRegions.map(region => ({
   ...region,
   logo: getLogoForRegion(region)
@@ -241,7 +234,10 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="static-image">
-        <img :src="europaMap" alt="Mapa de España" v-once/>
+        <transition name="fade" mode="out-in">
+        <img v-if="selectedRegion" class="custom-spain" :src="spainMap" alt="Mapa de España"/>
+        <img v-else :src="europaMap" alt="Mapa de europa"/>
+        </transition>
       </div>
       <div class="gap-image"/>
       <div class="dynamic-image">
@@ -405,6 +401,13 @@ onBeforeUnmount(() => {
       align-items: center;
       overflow: hidden;
       padding: 0;
+
+      .custom-spain {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 100% 20%;
+      }
 
       img {
         width: 100%;
