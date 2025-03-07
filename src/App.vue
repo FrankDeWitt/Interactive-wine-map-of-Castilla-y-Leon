@@ -235,8 +235,8 @@ onBeforeUnmount(() => {
 
       <div class="static-image">
         <transition name="fade" mode="out-in">
-        <img v-if="selectedRegion" class="custom-spain" :src="spainMap" alt="Mapa de España"/>
-        <img v-else :src="europaMap" alt="Mapa de europa"/>
+          <img v-if="selectedRegion" class="custom-spain" :src="spainMap" alt="Mapa de España"/>
+          <img v-else :src="europaMap" alt="Mapa de europa"/>
         </transition>
       </div>
       <div class="gap-image"/>
@@ -265,167 +265,68 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped lang="scss">
+/* Variables para reutilización */
+$color-bg-light: #ebebeb;
+$color-bg-lighter: #f9f9f9;
+$color-bg-dark: #595758;
+$color-border: #ddd;
+$color-active: #aedae7;
+$color-hover: #e0e0e0;
+
+/* Mixins para reutilización */
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin full-size {
+  width: 100%;
+  height: 100%;
+}
+
+/* Animaciones */
+@keyframes ripple {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.8;
+    box-shadow: 0 0 0 0 rgba(74, 178, 222, 0.7);
+  }
+
+  70% {
+    width: 250px;
+    height: 250px;
+    opacity: 0;
+    box-shadow: 0 0 0 45px rgba(74, 178, 222, 0);
+  }
+}
+
+/* Estilos base */
 .wine-map-app {
   display: grid;
-  grid-template-columns: 1200px minmax(0, 1fr) 850px;
-  height: 100%;
+  grid-template-columns: 40% minmax(0, 1fr) 30%;
+  height: 100vh;
   width: 100%;
   font-family: Arial, sans-serif;
   overflow: hidden;
+}
 
-  .sidebar {
-    grid-column: 1;
-    background-color: #d7d7d7;
-    overflow-y: auto;
-    border-right: 1px solid #ddd;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .content {
-    grid-column: 2;
-    display: grid;
-    grid-template-rows: 250px calc(100% - 500px) 250px;
-    overflow: hidden;
-    height: 100%;
-
-    .header {
-      grid-row: 1;
-      display: flex;
-      padding: 1.5rem;
-      background-color: #fff;
-      justify-content: center;
-    }
-
-    .map-container {
-      grid-row: 2;
-      overflow: hidden;
-
-      .map-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-    }
-
-    .footer {
-      grid-row: 3;
-      padding: 1.5rem;
-      background-color: #fff;
-      text-align: center;
-    }
-  }
-
-  .right-column {
-    grid-column: 3;
-    background-color: #f9f9f9;
-    border-left: 1px solid #ddd;
-    width: 100%;
-    display: grid;
-    grid-template-rows: 17% 30% 22% 2% 29%;
-    height: 100%;
-    max-height: 100vh;
-    overflow: hidden;
-
-    .right-title {
-      background-color: #595758;
-      padding: 3rem;
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-
-      .title-container {
-        text-align: left;
-
-        .title-line {
-          font-size: 2.8rem;
-          line-height: 1.2;
-          color: white;
-          font-weight: normal;
-
-          &.bold {
-            font-size: 3.8rem;
-            font-weight: bold;
-          }
-        }
-      }
-    }
-
-    .info-box {
-      padding: 3.5rem;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden; // Evitamos que genere scroll
-
-      .info-box-title {
-        font-size: 3.3rem;
-        margin-bottom: 20px;
-      }
-
-      p {
-        font-size: 2.3rem;
-        margin-bottom: 20px;
-      }
-
-      .legend {
-        margin: 20px 0 50px 0;
-
-        .legend-item {
-          display: flex;
-          align-items: center;
-          margin-bottom: 18px;
-
-          .variety {
-            width: 50px;
-            height: 50px;
-          }
-
-          span:not(.variety) {
-            font-size: 2rem;
-          }
-        }
-      }
-    }
-
-    .gap-image {
-      height: 20px;
-    }
-
-    .static-image, .dynamic-image {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      padding: 0;
-
-      .custom-spain {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        object-position: 100% 20%;
-      }
-
-      img {
-        width: 100%;
-        height: 100%;
-        border-radius: 0;
-        box-shadow: none;
-        object-fit: cover;
-        object-position: center;
-      }
-    }
-  }
+/* Layout principal - Sidebar */
+.sidebar {
+  grid-column: 1;
+  background-color: #d7d7d7;
+  overflow-y: auto;
+  border-right: 1px solid $color-border;
+  width: 100%;
+  @include flex-center;
 }
 
 .region-list {
   list-style: none;
   padding: 0;
   margin: 0;
-  width: 50%;
+  width: 80%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -433,12 +334,13 @@ onBeforeUnmount(() => {
 
   li {
     &.active .region-item {
-      background-color: #aedae7;
+      background-color: $color-active;
       font-weight: bold;
       transition: background-color 0.3s ease;
     }
+
     &.disabled {
-      background-color: #aedae7;
+      background-color: $color-active;
       opacity: 0.6;
       cursor: not-allowed;
 
@@ -447,12 +349,7 @@ onBeforeUnmount(() => {
       }
     }
 
-    &.return-item {
-      position: relative;
-      overflow: hidden;
-    }
-
-    &.first-item {
+    &.return-item, &.first-item {
       position: relative;
       overflow: hidden;
     }
@@ -462,77 +359,168 @@ onBeforeUnmount(() => {
 .region-item {
   display: flex;
   align-items: center;
-  padding: 20px 25px;
-  border-bottom: 1px solid #ddd;
-  background-color: #ebebeb;
+  border-bottom: 1px solid $color-border;
+  background-color: $color-bg-light;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
-  height: 80px;
   position: relative;
   overflow: hidden;
 
   &:hover {
-    background-color: #e0e0e0;
+    background-color: $color-hover;
   }
 
   .region-number {
-    margin-right: 15px;
     font-weight: bold;
-    font-size: 1.8rem;
   }
 
   .region-name {
     flex: 1;
-    font-size: 1.6rem;
   }
 
   .region-logo {
-    height: 80px;
-    max-width: 120px;
     object-fit: contain;
-    margin-right: -25px;
-    margin-top: -20px;
-    margin-bottom: -20px;
   }
 
   &.return {
     display: flex;
-    padding: 20px 25px;
     justify-content: space-between;
     position: relative;
   }
 
-  .return-text {
-    font-size: 3rem;
+  .return-text, .return-arrow {
     font-weight: bold;
-    margin: 0 5px 5px 0;
-  }
-
-  .return-arrow {
-    font-size: 3rem;
-    font-weight: bold;
-    margin: 14px 5px 5px 0;
   }
 }
 
-h1 {
-  font-size: 2.8rem;
-  margin: 0;
-  font-weight: bold;
+/* Layout principal - Contenido central */
+.content {
+  grid-column: 2;
+  display: grid;
+  grid-template-rows: 20% calc(100% - 40%) 20%;
+  overflow: hidden;
+  height: 100%;
+
+  .header {
+    grid-row: 1;
+    display: flex;
+    background-color: #fff;
+    justify-content: center;
+    align-items: center;
+
+    img {
+      max-width: 100%;
+      max-height: 80%;
+      object-fit: contain;
+    }
+  }
+
+  .map-container {
+    grid-row: 2;
+    overflow: hidden;
+
+    .map-image {
+      @include full-size;
+      object-fit: cover;
+      object-position: 100% 20%;
+    }
+  }
+
+  .footer {
+    grid-row: 3;
+    background-color: #fff;
+    text-align: center;
+    @include flex-center;
+
+    img {
+      max-width: 100%;
+      max-height: 80%;
+      object-fit: contain;
+    }
+  }
 }
 
-h2 {
-  font-size: 2.2rem;
-  margin: 0 0 20px 0;
-  font-weight: bold;
+/* Layout principal - Columna derecha */
+.right-column {
+  grid-column: 3;
+  background-color: $color-bg-lighter;
+  border-left: 1px solid $color-border;
+  width: 100%;
+  display: grid;
+  grid-template-rows: 17% 30% 22% 2% 29%;
+  height: 100%;
+  max-height: 100vh;
+  overflow: hidden;
+
+  .right-title {
+    background-color: $color-bg-dark;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+
+    .title-container {
+      text-align: left;
+
+      .title-line {
+        line-height: 1.2;
+        color: white;
+        font-weight: normal;
+
+        &.bold {
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+  .info-box {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    .legend {
+      .legend-item {
+        display: flex;
+        align-items: center;
+
+        .variety {
+          object-fit: contain;
+        }
+
+        span:not(.variety) {
+          margin-left: 10px;
+        }
+      }
+    }
+  }
+
+  .gap-image {
+    height: 100%;
+  }
+
+  .static-image, .dynamic-image {
+    @include full-size;
+    @include flex-center;
+    overflow: hidden;
+    padding: 0;
+
+    .custom-spain {
+      @include full-size;
+      object-fit: cover;
+      object-position: 100% 20%;
+    }
+
+    img, .dynamic-map-image {
+      @include full-size;
+      border-radius: 0;
+      box-shadow: none;
+      object-fit: cover;
+      object-position: center;
+    }
+  }
 }
 
-h3 {
-  font-size: 1.8rem;
-  margin: 25px 0 15px 0;
-  color: #333;
-}
-
+/* Transiciones y efectos visuales */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s ease;
@@ -559,19 +547,403 @@ h3 {
   animation: ripple 3s ease-out;
 }
 
-@keyframes ripple {
-  0% {
-    width: 0;
-    height: 0;
-    opacity: 0.8;
-    box-shadow: 0 0 0 0 rgba(74, 178, 222, 0.7);
+/******************************************************
+* ESTILOS ESPECÍFICOS PARA 1920 x 1080 (Full HD)
+******************************************************/
+@media screen and (max-width: 1920px) {
+  // Ajustes de layout
+  .wine-map-app {
+    grid-template-columns: 30% minmax(0, 1fr) 21%;
   }
 
-  70% {
-    width: 400px;
-    height: 400px;
-    opacity: 0;
-    box-shadow: 0 0 0 70px rgba(74, 178, 222, 0);
+  .content {
+    grid-template-rows: 10% calc(100% - 20%) 10%;
+
+    .logo {
+      text-align: center;
+
+      img {
+        max-width: 50%;
+        max-height: 50%;
+        object-fit: contain;
+      }
+    }
+  }
+
+  .region-list {
+    width: 65%;
+  }
+
+  // Estilos de elementos de región
+  .region-item {
+    padding: 5px 15px;
+    height: 55px;
+
+    .region-number {
+      margin-right: 12px;
+      font-size: 1rem;
+    }
+
+    .region-name {
+      font-size: 1.1rem;
+    }
+
+    .region-logo {
+      height: 65px;
+      max-width: 95px;
+      margin-right: -20px;
+    }
+
+    &.return {
+      padding: 16px 20px;
+    }
+
+    .return-text {
+      font-size: 1.3rem;
+      margin: 0 5px 5px 0;
+    }
+
+    .return-arrow {
+      font-size: 1.4rem;
+      margin: 6px 5px 5px 0;
+    }
+  }
+
+  .right-column {
+    grid-template-rows: 17% 35% 22% 2% 29%;
+
+    .right-title {
+      padding: 1.8rem;
+
+      .title-container {
+        .title-line {
+          font-size: 1.5rem;
+
+          &.bold {
+            font-size: 2.1rem;
+          }
+        }
+      }
+    }
+
+    .info-box {
+      padding: 1.8rem;
+
+      .info-box-title {
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+      }
+
+      p {
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+      }
+
+      .legend {
+        margin: 5px 0 10px 0;
+
+        .legend-item {
+          margin-bottom: 10px;
+
+          .variety {
+            width: 35px;
+            height: 35px;
+          }
+
+          span:not(.variety) {
+            font-size: 1.3rem;
+          }
+        }
+      }
+    }
+  }
+
+  // Tipografía
+  h1 { font-size: 2.2rem; }
+  h2 { font-size: 1.8rem; margin: 0 0 15px 0; }
+  h3 { font-size: 1.5rem; margin: 20px 0 12px 0; }
+
+  // Animación específica
+  @keyframes ripple {
+    0% {
+      width: 0;
+      height: 0;
+      opacity: 0.8;
+      box-shadow: 0 0 0 0 rgba(74, 178, 222, 0.7);
+    }
+
+    70% {
+      width: 250px;
+      height: 250px;
+      opacity: 0;
+      box-shadow: 0 0 0 45px rgba(74, 178, 222, 0);
+    }
+  }
+}
+
+/******************************************************
+* ESTILOS ESPECÍFICOS PARA 2560 x 1440 (QHD / WQHD)
+******************************************************/
+@media screen and (min-width: 1921px) and (max-width: 2560px) {
+  // Ajustes de layout
+  .wine-map-app {
+    grid-template-columns: 30% minmax(0, 1fr) 21%;
+  }
+
+  .content {
+    grid-template-rows: 10% calc(100% - 20%) 10%;
+
+    .logo {
+      text-align: center;
+
+      img {
+        max-width: 50%;
+        max-height: 50%;
+        object-fit: contain;
+      }
+    }
+  }
+
+  .region-list {
+    width: 75%;
+  }
+
+  // Estilos de elementos de región
+  .region-item {
+    padding: 10px 20px;
+    height: 70px;
+
+    .region-number {
+      margin-right: 20px;
+      font-size: 1.6rem;
+    }
+
+    .region-name {
+      font-size: 1.5rem;
+    }
+
+    .region-logo {
+      height: 70px;
+      max-width: 110px;
+      margin-right: -22px;
+    }
+
+    &.return {
+      padding: 18px 22px;
+    }
+
+    .return-text {
+      font-size: 2rem;
+      margin: 0 5px 5px 0;
+    }
+
+    .return-arrow {
+      font-size: 2.5rem;
+      margin: 10px 5px 5px 0;
+    }
+  }
+
+  .right-column {
+    .right-title {
+      padding: 2.5rem;
+
+      .title-container {
+        .title-line {
+          font-size: 2rem;
+
+          &.bold {
+            font-size: 2.8rem;
+          }
+        }
+      }
+    }
+
+    .info-box {
+      padding: 2.5rem;
+
+      .info-box-title {
+        font-size: 2.3rem;
+        margin-bottom: 10px;
+      }
+
+      p {
+        font-size: 1.6rem;
+        margin-bottom: 10px;
+      }
+
+      .legend {
+        margin: 10px 0 20px 0;
+
+        .legend-item {
+          margin-bottom: 5px;
+
+          .variety {
+            width: 42px;
+            height: 42px;
+          }
+
+          span:not(.variety) {
+            font-size: 1.7rem;
+          }
+        }
+      }
+    }
+  }
+
+  // Tipografía
+  h1 { font-size: 2.5rem; }
+  h2 { font-size: 2rem; margin: 0 0 18px 0; }
+  h3 { font-size: 1.8rem; margin: 22px 0 15px 0; }
+
+  // Animación específica
+  @keyframes ripple {
+    0% {
+      width: 0;
+      height: 0;
+      opacity: 0.8;
+      box-shadow: 0 0 0 0 rgba(74, 178, 222, 0.7);
+    }
+
+    70% {
+      width: 320px;
+      height: 320px;
+      opacity: 0;
+      box-shadow: 0 0 0 60px rgba(74, 178, 222, 0);
+    }
+  }
+}
+
+/******************************************************
+* ESTILOS ESPECÍFICOS PARA 3840 x 2160 (4K / UHD)
+******************************************************/
+@media screen and (min-width: 2561px) {
+  // Ajustes de layout
+  .wine-map-app {
+    grid-template-columns: 32% minmax(0, 1fr) 20%;
+  }
+
+  .content {
+    grid-template-rows: 10% calc(100% - 20%) 10%;
+
+    .map-container {
+      grid-row: 2;
+      overflow: hidden;
+
+      .map-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+      }
+    }
+  }
+
+  .region-list {
+    width: 65%;
+  }
+
+  // Estilos de elementos de región
+  .region-item {
+    padding: 20px 25px;
+    height: 100px;
+
+    .region-number {
+      margin-right: 30px;
+      font-size: 2.2rem;
+    }
+
+    .region-name {
+      font-size: 1.9rem;
+    }
+
+    .region-logo {
+      height: 80px;
+      max-width: 120px;
+      margin-right: -25px;
+    }
+
+    &.return {
+      padding: 20px 25px;
+    }
+
+    .return-text {
+      font-size: 3rem;
+      margin: 0 5px 5px 0;
+    }
+
+    .return-arrow {
+      font-size: 3rem;
+      margin: 14px 5px 5px 0;
+    }
+  }
+
+  .right-column {
+    .right-title {
+      padding: 3rem;
+
+      .title-container {
+        .title-line {
+          font-size: 2.8rem;
+
+          &.bold {
+            font-size: 3.8rem;
+          }
+        }
+      }
+    }
+
+    .info-box {
+      padding: 3rem;
+
+      .info-box-title {
+        font-size: 3.3rem;
+        margin-bottom: 20px;
+      }
+
+      p {
+        font-size: 2.3rem;
+        margin-bottom: 20px;
+      }
+
+      .legend {
+        margin: 20px 0 50px 0;
+
+        .legend-item {
+          margin-bottom: 18px;
+
+          .variety {
+            width: 50px;
+            height: 50px;
+          }
+
+          span:not(.variety) {
+            font-size: 2rem;
+          }
+        }
+      }
+    }
+  }
+
+  // Tipografía
+  h1 { font-size: 2.8rem; }
+  h2 { font-size: 2.2rem; margin: 0 0 20px 0; }
+  h3 { font-size: 1.8rem; margin: 25px 0 15px 0; }
+
+  // Animación específica
+  @keyframes ripple {
+    0% {
+      width: 0;
+      height: 0;
+      opacity: 0.8;
+      box-shadow: 0 0 0 0 rgba(74, 178, 222, 0.7);
+    }
+
+    70% {
+      width: 400px;
+      height: 400px;
+      opacity: 0;
+      box-shadow: 0 0 0 70px rgba(74, 178, 222, 0);
+    }
   }
 }
 </style>
