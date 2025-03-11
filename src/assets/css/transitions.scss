@@ -9,7 +9,6 @@
     opacity: 0;
 }
 
-/* Transicion con fade lento */
 .slow-fade-enter-active,
 .slow-fade-leave-active {
     transition: opacity 1.2s ease;
@@ -20,7 +19,6 @@
     opacity: 0;
 }
 
-/* Transición con slide */
 .slide-enter-active,
 .slide-leave-active {
     transition: all 1s ease;
@@ -36,7 +34,6 @@
     opacity: 0;
 }
 
-/* Animación de ripple */
 @keyframes ripple {
     0% {
         width: 0;
