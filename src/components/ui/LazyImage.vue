@@ -107,5 +107,5 @@ export default {
       @load="onLoaded"
       :key="uniqueKey"
   />
-  <div v-else :class="imgClass" style="background-color: #f5f5f5; width: 100%; height: 100%;"></div>
+  <div v-else :class="imgClass" style="background-color: #f5f5f5; width: 100%; height: 100%;" />
 </template>
