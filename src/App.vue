@@ -121,6 +121,7 @@ const showRippleOnReturnButton = computed(() => {
 });
 
 const selectRegion = (region) => {
+  console.log('Region seleccionada:', region);
   selectedRegion.value = region;
 
   if (rippleInterval.value) {
