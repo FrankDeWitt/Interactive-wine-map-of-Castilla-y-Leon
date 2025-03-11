@@ -1,6 +1,7 @@
 <script setup >
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import LazyImage from './assets/LazyImage.vue';
+import LazyImage from './components/LazyImage.vue';
+import CompanyModal from './components/CompanyModal.vue';
 import { wineRegions as originalWineRegions } from './data/wine-regions';
 
 // Importaciones de imágenes ya existentes
@@ -12,7 +13,7 @@ import roseWineIcon from './assets/images/info/rose.png';
 import sparklingWineIcon from './assets/images/info/sparkling.png';
 import europaMap from './assets/images/europa.jpg';
 import spainMap from './assets/images/spain.jpg';
-import defaultRegionMap from './assets/images/content/region-0.jpg';
+import defaultRegionMap from './assets/images/region.jpg';
 
 // Importaciones de logos de regiones
 import arlanzaLogo from './assets/logos/arlanza.jpg';
@@ -31,6 +32,24 @@ import toroLogo from './assets/logos/toro.jpg';
 import vallesLogo from './assets/logos/valles.jpg';
 import valtiendasLogo from './assets/logos/valtiendas.jpg';
 import vinoLogo from './assets/logos/vino.jpg';
+
+// Logos de empresas
+import cellarmastersLogo from './assets/logos/companies/region-12/cellarmasters.jpg';
+
+// Variables para el modal
+const isModalOpen = ref(false);
+const selectedCompany = ref(null);
+
+// Función para abrir el modal
+const openModal = (company) => {
+  selectedCompany.value = company;
+  isModalOpen.value = true;
+};
+
+// Función para cerrar el modal
+const closeModal = () => {
+  isModalOpen.value = false;
+};
 
 // Mapeo de logos por identificador o nombre (ajusta según tu estructura de datos)
 const logoMap = {
@@ -77,11 +96,17 @@ const wineRegions = originalWineRegions.map(region => ({
 }));
 
 const getRegionImage = (regionId) => {
-  return new URL(`./assets/images/content/${regionId}.jpg`, import.meta.url).href;
+  if (!imageUrlCache.regions[regionId]) {
+    imageUrlCache.regions[regionId] = new URL(`./assets/images/content/${regionId}.jpg`, import.meta.url).href;
+  }
+  return imageUrlCache.regions[regionId];
 };
 
 const getRegionMapImage = (regionId) => {
-  return new URL(`./assets/images/regions/${regionId}.jpg`, import.meta.url).href;
+  if (!imageUrlCache.maps[regionId]) {
+    imageUrlCache.maps[regionId] = new URL(`./assets/images/regions/${regionId}.jpg`, import.meta.url).href;
+  }
+  return imageUrlCache.maps[regionId];
 };
 
 const selectedRegion = ref(null);
@@ -116,14 +141,23 @@ const startRippleEffect = () => {
   }, 3000);
 };
 
+const imageUrlCache = {
+  regions: {},
+  maps: {}
+};
 const preloadImages = () => {
+  console.log('Precargando imágenes...');
   wineRegions.forEach(region => {
-    const contentImg = new Image();
-    contentImg.src = getRegionImage(region.mapRegionId);
+    getRegionMapImage(region.mapRegionId);
+    getRegionImage(region.id);
 
     const mapImg = new Image();
     mapImg.src = getRegionMapImage(region.mapRegionId);
+
+    const contentImg = new Image();
+    contentImg.src = getRegionImage(region.id);
   });
+  console.log('Precarga completada');
 };
 
 onMounted(() => {
@@ -179,21 +213,39 @@ onBeforeUnmount(() => {
           <img :src="juntaCylLogo" alt="Junta de Castilla y León" v-once/>
         </div>
       </header>
-
-      <div class="map-container">
-        <transition name="fade" mode="out-in">
-          <LazyImage
-              v-if="selectedRegion"
-              :key="'region-' + selectedRegion.mapRegionId"
-              :src="getRegionImage(selectedRegion.mapRegionId)"
-              :alt="selectedRegion ? selectedRegion.name : 'Whines from Castilla y León'"
-              :img-class="'map-image'"
-              @load="preloadImages"
-          />
-          <img v-else :key="'default-map'" :src="defaultRegionMap" alt="Whines from Castilla y León" class="map-image" />
-        </transition>
-      </div>
-
+<!--      <transition name="fade" mode="out-in">-->
+        <div v-show="selectedRegion" class="page-container">
+          <div class="header-section" :style="'background-color:' + (selectedRegion?.backgroundColor || '#FFFFFF')">
+            <p class="region-title">{{selectedRegion?.id || ''}}. {{ selectedRegion?.shortName || '' }}</p>
+            <div class="logo-container">
+              <LazyImage
+                  :key="'region-' + (selectedRegion?.mapRegionId || 'default')"
+                  :src="selectedRegion?.logo || dummyLogo"
+                  :alt="selectedRegion ? selectedRegion.name : 'Whines from Castilla y León'"
+                  :img-class="'map-image'"
+              />
+            </div>
+          </div>
+          <div class="buttons-section">
+            <div class="buttons-grid">
+              <button
+                  v-for="company in selectedRegion?.companies || []"
+                  :key="company.id"
+                  class="company-button"
+                  @click="openModal(company)"
+              >
+                <LazyImage
+                    :key="'region-' + (selectedRegion?.mapRegionId || 'default') + '-' + company.id"
+                    :src="cellarmastersLogo"
+                    :alt="company ? company.name : 'Whines from Castilla y León'"
+                    :img-class="'map-image'"
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+        <img v-show="!selectedRegion" :key="'default-map'" :src="defaultRegionMap" alt="Whines from Castilla y León" class="map-image" />
+<!--      </transition>-->
       <footer class="footer">
         <img :src="spainWinesLogo" alt="Junta de Castilla y León" v-once/>
       </footer>
@@ -234,33 +286,37 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="static-image">
-        <transition name="fade" mode="out-in">
-          <img v-if="selectedRegion" class="custom-spain" :src="spainMap" alt="Mapa de España"/>
-          <img v-else :src="europaMap" alt="Mapa de europa"/>
-        </transition>
+<!--        <transition name="fade" mode="out-in">-->
+          <img v-show="selectedRegion" class="custom-spain" :src="spainMap" alt="Mapa de España"/>
+          <img v-show="!selectedRegion" :src="europaMap" alt="Mapa de europa"/>
+<!--        </transition>-->
       </div>
       <div class="gap-image"/>
       <div class="dynamic-image">
-        <transition name="fade" mode="out-in">
+<!--        <transition name="fade" mode="out-in">-->
           <LazyImage
-              v-if="selectedRegion"
-              :key="'map-detail-' + selectedRegion.mapRegionId"
-              :src="getRegionMapImage(selectedRegion.mapRegionId)"
-              :alt="selectedRegion.name"
+              v-show="selectedRegion"
+              :key="'map-detail'"
+              :src="selectedRegion ? getRegionMapImage(selectedRegion.mapRegionId) : ''"
+              :alt="selectedRegion?.name || ''"
               :img-class="'dynamic-map-image'"
-              @load="preloadImages"
           />
           <LazyImage
-              v-else
+              v-show="!selectedRegion"
               :key="'default-map-detail'"
               :src="spainMap"
               :alt="'Mapa de España'"
               :img-class="'dynamic-map-image'"
-              @load="preloadImages"
           />
-        </transition>
+<!--        </transition>-->
       </div>
     </div>
+
+    <CompanyModal
+        :company="selectedCompany"
+        :is-open="isModalOpen"
+        @close="closeModal"
+    />
   </div>
 </template>
 
@@ -414,15 +470,46 @@ $color-hover: #e0e0e0;
       object-fit: contain;
     }
   }
+  .page-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 
-  .map-container {
-    grid-row: 2;
-    overflow: hidden;
+    .header-section {
+      height: 35%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
 
-    .map-image {
-      @include full-size;
-      object-fit: cover;
-      object-position: 100% 20%;
+      .region-title {
+        font-size: 4rem;
+        margin-bottom: 2rem;
+      }
+      .logo-container {
+        .main-logo {
+          max-width: 500px;
+        }
+      }
+    }
+
+    .buttons-section {
+      flex: 1;
+      background-image: url('@/assets/bg.jpg');
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+
+      .buttons-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        width: 100%;
+        justify-content: center;
+      }
     }
   }
 

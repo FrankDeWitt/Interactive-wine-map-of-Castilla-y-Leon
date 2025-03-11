@@ -5,6 +5,7 @@ export const wineRegions = [
         shortName: "TIERRA DE CASTILLA Y LEÓN",
         logo: "/logos/castilla.jpg",
         mapRegionId: "region-1",
+        backgroundColor: "#bc5c8e",
         clickable: true,
     },
     {
@@ -13,6 +14,7 @@ export const wineRegions = [
         shortName: "ARLANZA",
         logo: "/logos/arlanza.jpg",
         mapRegionId: "region-2",
+        backgroundColor: "#f5f5f5",
         clickable: false,
     },
     {
@@ -21,6 +23,7 @@ export const wineRegions = [
         shortName: "ARRIBES",
         logo: "/logos/arribes.jpg",
         mapRegionId: "region-3",
+        backgroundColor: "#f5f5f5",
         clickable: false,
     },
     {
@@ -29,6 +32,7 @@ export const wineRegions = [
         shortName: "BIERZO",
         logo: "/logos/bierzo.jpg",
         mapRegionId: "region-4",
+        backgroundColor: "#6395ba",
         clickable: true,
     },
     {
@@ -37,6 +41,7 @@ export const wineRegions = [
         shortName: "CEBREROS",
         logo: "/logos/cebreros.jpg",
         mapRegionId: "region-5",
+        backgroundColor: "#f5f5f5",
         clickable: false,
     },
     {
@@ -45,6 +50,7 @@ export const wineRegions = [
         shortName: "CIGALES",
         logo: "/logos/cigales.jpg",
         mapRegionId: "region-6",
+        backgroundColor: "#a8a5b6",
         clickable: true,
     },
     {
@@ -53,6 +59,7 @@ export const wineRegions = [
         shortName: "RIBERA DEL DUERO",
         logo: "/logos/ribera.jpg",
         mapRegionId: "region-7",
+        backgroundColor: "#e37574",
         clickable: true,
     },
     {
@@ -61,6 +68,7 @@ export const wineRegions = [
         shortName: "RUEDA",
         logo: "/logos/rueda.jpg",
         mapRegionId: "region-8",
+        backgroundColor: "#a5cd74",
         clickable: true,
     },
     {
@@ -69,6 +77,7 @@ export const wineRegions = [
         shortName: "TIERRA DE LEÓN",
         logo: "/logos/tierra.jpg",
         mapRegionId: "region-9",
+        backgroundColor: "#f5f5f5",
         clickable: false,
     },
     {
@@ -77,6 +86,7 @@ export const wineRegions = [
         shortName: "TIERRA DEL VINO DE ZAMORA",
         logo: "/logos/vino.jpg",
         mapRegionId: "region-10",
+        backgroundColor: "#f4bd96",
         clickable: true,
     },
     {
@@ -85,6 +95,7 @@ export const wineRegions = [
         shortName: "TORO",
         logo: "/logos/toro.jpg",
         mapRegionId: "region-11",
+        backgroundColor: "#a3d8e8",
         clickable: true,
     },
     {
@@ -93,6 +104,14 @@ export const wineRegions = [
         shortName: "VALLES DE BENAVENTE",
         logo: "/logos/valles.jpg",
         mapRegionId: "region-12",
+        backgroundColor: "#b9acbd",
+        companies: [
+            {
+                id: 12,
+                name: "Cellermasters",
+                logo: "cellarmasters.jpg",
+            },
+        ],
         clickable: true,
     },
     {
@@ -101,6 +120,7 @@ export const wineRegions = [
         shortName: "SIERRA DE SALAMANCA",
         logo: "/logos/salamanca.jpg",
         mapRegionId: "region-13",
+        backgroundColor: "#f5f5f5",
         clickable: false,
     },
     {
@@ -109,6 +129,7 @@ export const wineRegions = [
         shortName: "VALTIENDAS",
         logo: "/logos/valtiendas.jpg",
         mapRegionId: "region-14",
+        backgroundColor: "#f5f5f5",
         clickable: false,
     },
     {
@@ -117,6 +138,7 @@ export const wineRegions = [
         shortName: "RIOJA",
         logo: "/logos/rioja.jpg",
         mapRegionId: "region-15",
-        clickable: true,
+        backgroundColor: "#f5f5f5",
+        clickable: false,
     }
 ];
