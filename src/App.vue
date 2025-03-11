@@ -10,7 +10,7 @@ import { getLogoForRegion, getRegionImage, getRegionMapImage, preloadImages } fr
 import arlanzaLogo from './assets/logos/arlanza.jpg';
 import arribesLogo from './assets/logos/arribes.jpg';
 import bierzoLogo from './assets/logos/bierzo.jpg';
-import castillaLogo from './assets/logos/castilla.jpg';
+import castillaLogo from './assets/logos/castilla.png';
 import cebrerosLogo from './assets/logos/cebreros.jpg';
 import cigalesLogo from './assets/logos/cigales.jpg';
 import dummyLogo from './assets/logos/dummy.jpg';

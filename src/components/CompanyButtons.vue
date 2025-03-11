@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch, provide, inject, onMounted, onBeforeUnmount } from 'vue';
 import LazyImage from './ui/LazyImage.vue';
 
 const props = defineProps({
@@ -7,27 +7,70 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  companyLogo: {
-    type: String,
+  regionId: {
+    type: [Number, String],
     required: true
   }
 });
 
 const selectedCompany = ref(null);
 
+// Función para obtener la ruta del logo
+const getCompanyLogoPath = (company) => {
+  return `src/assets/logos/companies/region-${props.regionId}/${company.logo}`;
+}
+
+const getCompanyDetailLogoPath = (company) => {
+  return `src/assets/logos/companies/region-${props.regionId}/logo/${company.logo}`;
+}
+
+// Seleccionar/deseleccionar compañía
 const selectCompany = (company) => {
   selectedCompany.value = company === selectedCompany.value ? null : company;
-};
+}
 
+// Cerrar información de compañía
 const closeCompanyInfo = () => {
   selectedCompany.value = null;
-};
+}
+
+// Crear un bus de eventos global o usar provide/inject
+const eventBus = inject('eventBus', null);
+
+// Escuchar el evento de selección de región desde RegionSidebar
+onMounted(() => {
+  if (eventBus) {
+    eventBus.on('region-selected', () => {
+      selectedCompany.value = null;
+    });
+  }
+
+  // Alternativamente, escucha directamente cambios en regionId
+  watch(() => props.regionId, () => {
+    selectedCompany.value = null;
+  });
+
+  // También podemos escuchar un evento personalizado a nivel de ventana
+  window.addEventListener('region-change', () => {
+    selectedCompany.value = null;
+  });
+});
+
+// Limpiar los event listeners cuando se desmonta el componente
+onBeforeUnmount(() => {
+  if (eventBus) {
+    eventBus.off('region-selected');
+  }
+
+  window.removeEventListener('region-change', () => {
+    selectedCompany.value = null;
+  });
+});
 </script>
 
 <template>
   <div class="buttons-section">
     <transition name="fade" mode="out-in">
-      <!-- Vista de lista de empresas -->
       <div v-if="!selectedCompany" key="companies-grid" class="buttons-grid">
         <button
             v-for="company in companies"
@@ -37,7 +80,7 @@ const closeCompanyInfo = () => {
         >
           <LazyImage
               :key="'company-' + company.id"
-              :src="companyLogo"
+              :src="getCompanyLogoPath(company)"
               :alt="company ? company.name : 'Company'"
               :img-class="'company-logo'"
           />
@@ -47,7 +90,13 @@ const closeCompanyInfo = () => {
       <!-- Vista de detalle de empresa -->
       <div v-else key="company-detail" class="company-detail">
         <div class="company-card">
-          <h2 class="company-name">{{ selectedCompany.name }}</h2>
+          <div class="company-logo-container">
+            <LazyImage
+                :src="getCompanyDetailLogoPath(selectedCompany)"
+                :alt="selectedCompany.name"
+                :img-class="'company-detail-logo'"
+            />
+          </div>
 
           <div class="company-info">
             <div class="column column-left">
@@ -102,7 +151,7 @@ const closeCompanyInfo = () => {
                   </svg>
                 </div>
                 <div class="info-text">
-                  <a :href="selectedCompany.website" target="_blank" rel="noopener noreferrer">
+                  <a :href="'https://' + selectedCompany.website" target="_blank" rel="noopener noreferrer">
                     {{ selectedCompany.website }}
                   </a>
                 </div>
@@ -190,13 +239,15 @@ const closeCompanyInfo = () => {
     position: relative;
     backdrop-filter: blur(10px);
 
-    .company-name {
-      font-size: 3rem;
+    .company-logo-container {
       text-align: center;
-      font-weight: bold;
-      margin: 5rem 0;
-      text-transform: uppercase;
-      letter-spacing: 2px;
+      margin: 2rem 0;
+
+      .company-detail-logo {
+        max-width: 100%;
+        max-height: 300px;
+        object-fit: contain;
+      }
     }
 
     .company-info {

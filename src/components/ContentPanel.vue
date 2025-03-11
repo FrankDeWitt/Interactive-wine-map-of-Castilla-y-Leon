@@ -7,9 +7,6 @@ import juntaCylLogo from '../assets/logos/junta-cyl.png';
 import spainWinesLogo from '../assets/logos/spain-wines.png';
 import defaultRegionMap from '../assets/images/region.jpg';
 
-// Importación de logos de empresas
-import cellarmastersLogo from '../assets/logos/companies/region-12/cellarmasters.jpg';
-
 const props = defineProps({
   selectedRegion: {
     type: Object,
@@ -37,9 +34,8 @@ const props = defineProps({
         />
 
         <CompanyButtons
-            :companies="selectedRegion?.companies || []"
-            :company-logo="cellarmastersLogo"
-            @open-modal="openModal"
+          :companies="selectedRegion?.companies || []"
+          :regionId="selectedRegion?.id"
         />
       </div>
       <div v-else key="default-map-container" class="default-map-container">

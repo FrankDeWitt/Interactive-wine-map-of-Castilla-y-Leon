@@ -3,9 +3,156 @@ export const wineRegions = [
         id: 1,
         name: "IGP VINOS DE LA TIERRA DE CASTILLA Y LEÓN",
         shortName: "TIERRA DE CASTILLA Y LEÓN",
-        logo: "/logos/castilla.jpg",
+        logo: "/logos/castilla.png",
         mapRegionId: "region-1",
         backgroundColor: "#bc5c8e",
+        companies: [
+            {
+                id: 1,
+                name: "Nava Valley",
+                logo: "nava-valley.png",
+                manager: "Juan Gómez García ",
+                address: "Calle Hermanos García Barbero, 11\n" +
+                    "40450 Nava de laAsunción\n" +
+                    "(Segovia) Spain",
+                phone: "+34 662 191 153",
+                email: "info@bodegasgarciaserrano.com",
+                website: "www.bodegasgarciaserrano.com",
+                stand: "11H64"
+            },
+            {
+                id: 2,
+                name: "PEDRO ESCUDERO",
+                logo: "pedro-escudero.png",
+                manager: "Diego Escudero",
+                address: "Ctra. Pozaldez s/n\n47491 (Valladolid) Spain",
+                phone: "+34 695 590 323",
+                email: "info@pedroescuderoviticultor.com",
+                website: "www.pedroescuderoviticultor.com",
+                stand: "11H62"
+            },
+            {
+                id: 3,
+                name: "DE ALBERTO",
+                logo: "de-alberto.png",
+                manager: "Mariano de Juan",
+                address: "Carretera de Valdestillas 2\nCP 47231 Serrada (Valladolid) Spain",
+                phone: "+34 608 685 577",
+                email: "export2@dealberto.com",
+                website: "www.dealberto.com",
+                stand: "11G78"
+            },
+            {
+                id: 4,
+                name: "CASTILLO DE BUEN AMOR",
+                logo: "castillo-buen-amor.png",
+                manager: "Pilar Fernández De Trocóniz Tapia",
+                address: "Carretera N-630 Km 317,\n637799 Villanueva de Cañedo\n(Salamanca) Spain",
+                phone: "+34 616 362 763",
+                email: "bodega@buenamor.net",
+                website: "www.vinosbuenamor.com",
+                stand: "11I67"
+            },
+            {
+                id: 5,
+                name: "ERESMA",
+                logo: "eresma.png",
+                manager: "Rubén Asensio Valentín",
+                address: "Carretera N601 Km 151\n47410 Olmedo (Valladolid) Spain",
+                phone: "+34 665 086 992 / +34 983 601 026",
+                email: "sales.export@bodegaslasoterrana.com",
+                website: "www.bodegaeresma.com",
+                stand: "11H70"
+            },
+            {
+                id: 6,
+                name: "MUELAS DE TORDESILLAS",
+                logo: "muelas.png",
+                manager: "Helena Muelas Fernández / Félix Blanco Campos",
+                address: "A62 KM 148 47100 Tordesillas\n(Valladolid) Spain",
+                phone: "+34 680 248 368 / 657 273 514",
+                email: "info@bodegamuelas.com",
+                website: "www.bodegamuelas.com",
+                stand: "11H67"
+            },
+            {
+                id: 7,
+                name: "LA MEJORADA",
+                logo: "la-mejorada.png",
+                manager: "José Ignacio Cabrera",
+                address: "Monasterio de La Mejorada s/n\n47410 Olmedo (Valladolid) Spain",
+                phone: "+34 606 707 041",
+                email: "contacto@lamejorada.es",
+                website: "www.lamejorada.es",
+                stand: "11H61"
+            },
+            {
+                id: 8,
+                name: "ALTA PAVINA",
+                logo: "alta-pavina.png",
+                manager: "Hugo Ortega",
+                address: "Camino De Santibañez s/n\n47328 La Parrilla (Valladolid) Spain",
+                phone: "+34 669 789 569",
+                email: "comercial@altapavina.com",
+                website: "www.altapavina.com",
+                stand: "11H76"
+            },
+            {
+                id: 9,
+                name: "MAZAS",
+                logo: "mazas.png",
+                manager: "Maria de Uña",
+                address: "Carretera Tordesillas 22\n49810 Morales de Toro (Zamora) Spain",
+                phone: "+34 635 804 196",
+                email: "bodegas@mazas.eu",
+                website: "www.bodegasmazas.com",
+                stand: "11G75"
+            },
+            {
+                id: 10,
+                name: "EL HACEDOR",
+                logo: "el-hacedor.png",
+                manager: "Anna K.Granqvist\n(Export Manager)",
+                address: "Avenida Estación s/n\n47360 Quintanilla de Arriba\n(Valladolid) Spain",
+                phone: "+34 680 266 348",
+                email: "anna.k@montevannos.com",
+                website: "www.montevannos.com",
+                stand: "11G73"
+            },
+            {
+                id: 11,
+                name: "YLLERA",
+                logo: "yllera.png",
+                manager: "Andreea Irimia",
+                address: "Autovía A-6, Km. 173,5\n47490 Rueda (Valladolid) Spain",
+                phone: "+34 626 668 770",
+                email: "andreea.irimia@grupoyllera.com",
+                website: "www.grupoyllera.com",
+                stand: "11I71"
+            },
+            {
+                id: 12,
+                name: "BODEGAS EL INICIO",
+                logo: "el-inicio.png",
+                manager: "Alfonso Velasco / Yésica Abad",
+                address: "San Vicente 22\n09400 Peñafiel (Valladolid) Spain",
+                phone: "+34947515884 / +34 630394141",
+                email: "export@bodegaselinicio.com",
+                website: "www.bodegaselinicio.com",
+                stand: "11G77"
+            },
+            {
+                id: 12,
+                name: "FRUTOS VILLAR",
+                logo: "frutos-villar.png",
+                manager: "Jose Luis Villar",
+                address: "Carretera Burgos Km 115\n47270 Cigales (Valladolid) Spain",
+                phone: "+34 670 790 605",
+                email: "export@bodegasfrutosvillar.com",
+                website: "www.bodegasfrutosvillar.com",
+                stand: "11G60"
+            }
+        ],
         clickable: true,
     },
     {
@@ -115,7 +262,7 @@ export const wineRegions = [
                 phone: "+34 639 199 391",
                 email: "irina@cellarmasters.es",
                 website: "www.cellarmasters.es/",
-                stand: "11|75"
+                stand: "11I75"
             },
         ],
         clickable: true,

@@ -27,6 +27,8 @@ const showRippleOnReturnButton = computed(() => {
 const selectRegion = (region) => {
   emit('select-region', region);
 
+  window.dispatchEvent(new CustomEvent('region-change'));
+
   if (rippleInterval.value) {
     clearInterval(rippleInterval.value);
     rippleInterval.value = null;
@@ -56,7 +58,6 @@ onBeforeUnmount(() => {
   }
 });
 </script>
-
 <template>
   <div class="sidebar">
     <ul class="region-list">
