@@ -107,9 +107,15 @@ export const wineRegions = [
         backgroundColor: "#b9acbd",
         companies: [
             {
-                id: 12,
+                id: 1,
                 name: "Cellermasters",
                 logo: "cellarmasters.jpg",
+                manager: "Irina Martinkevitch",
+                address: "Calle del Arado 8 47014 (Valladolid) Spain",
+                phone: "+34 639 199 391",
+                email: "irina@cellarmasters.es",
+                website: "www.cellarmasters.es/",
+                stand: "11|75"
             },
         ],
         clickable: true,

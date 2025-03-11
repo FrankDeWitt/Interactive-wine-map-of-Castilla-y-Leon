@@ -4,7 +4,6 @@ import { wineRegions as originalWineRegions } from './data/wine-regions';
 import RegionSidebar from './components/RegionSidebar.vue';
 import ContentPanel from './components/ContentPanel.vue';
 import InfoPanel from './components/InfoPanel.vue';
-import CompanyModal from './components/ui/CompanyModal.vue';
 import { getLogoForRegion, getRegionImage, getRegionMapImage, preloadImages } from './utils/imageUtils';
 
 // Importaciones de logos para el mapeo
@@ -25,21 +24,7 @@ import vallesLogo from './assets/logos/valles.jpg';
 import valtiendasLogo from './assets/logos/valtiendas.jpg';
 import vinoLogo from './assets/logos/vino.jpg';
 
-// Variables para el modal
-const isModalOpen = ref(false);
-const selectedCompany = ref(null);
 const selectedRegion = ref(null);
-
-// Función para abrir el modal
-const openModal = (company) => {
-  selectedCompany.value = company;
-  isModalOpen.value = true;
-};
-
-// Función para cerrar el modal
-const closeModal = () => {
-  isModalOpen.value = false;
-};
 
 // Mapeo de logos por identificador o nombre
 const logoMap = {
@@ -69,7 +54,6 @@ const wineRegions = originalWineRegions.map(region => ({
 
 // Función para seleccionar región
 const selectRegion = (region) => {
-  console.log('Region seleccionada:', region);
   selectedRegion.value = region;
 };
 
@@ -89,18 +73,11 @@ onMounted(() => {
     <ContentPanel
         :selected-region="selectedRegion"
         :get-region-image="getRegionImage"
-        @open-modal="openModal"
     />
 
     <InfoPanel
         :selected-region="selectedRegion"
         :get-region-map-image="getRegionMapImage"
-    />
-
-    <CompanyModal
-        :company="selectedCompany"
-        :is-open="isModalOpen"
-        @close="closeModal"
     />
   </div>
 </template>

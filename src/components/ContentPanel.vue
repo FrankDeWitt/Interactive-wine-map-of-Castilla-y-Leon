@@ -20,12 +20,6 @@ const props = defineProps({
     required: true
   }
 });
-
-const emit = defineEmits(['open-modal']);
-
-const openModal = (company) => {
-  emit('open-modal', company);
-};
 </script>
 
 <template>
@@ -36,7 +30,7 @@ const openModal = (company) => {
       </div>
     </header>
 
-    <transition name="fade" mode="out-in">
+    <transition name="slide" mode="out-in">
       <div v-if="selectedRegion" key="region-content" class="page-container">
         <RegionHeader
             :region="selectedRegion"
