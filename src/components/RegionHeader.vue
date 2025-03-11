@@ -14,7 +14,7 @@ const backgroundColor = computed(() => {
 });
 
 const regionTitle = computed(() => {
-  return `${props.region?.id || ''}. ${props.region?.shortName || ''}`;
+  return `${props.region?.id || ''}. ${props.region?.name || ''}`;
 });
 </script>
 

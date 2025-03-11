@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, provide, inject, onMounted, onBeforeUnmount } from 'vue';
+import { ref, watch, inject, onMounted, onBeforeUnmount } from 'vue';
 import LazyImage from './ui/LazyImage.vue';
 
 const props = defineProps({
@@ -14,57 +14,94 @@ const props = defineProps({
 });
 
 const selectedCompany = ref(null);
+const imageLoaded = ref(false);
+const preloadingImage = ref(null);
 
-// Función para obtener la ruta del logo
 const getCompanyLogoPath = (company) => {
-  return `src/assets/logos/companies/region-${props.regionId}/${company.logo}`;
+  if (!company) return '';
+
+  try {
+    return new URL(`../assets/logos/companies/region-${props.regionId}/${company.logo}`, import.meta.url).href;
+  } catch (error) {
+    console.error('Error loading logo:', error);
+    return '';
+  }
 }
 
 const getCompanyDetailLogoPath = (company) => {
-  return `src/assets/logos/companies/region-${props.regionId}/logo/${company.logo}`;
+  if (!company) return '';
+
+  try {
+    return new URL(`../assets/logos/companies/region-${props.regionId}/logo/${company.logo}`, import.meta.url).href;
+  } catch (error) {
+    console.error('Error loading detail logo:', error);
+    return '';
+  }
 }
 
-// Seleccionar/deseleccionar compañía
-const selectCompany = (company) => {
-  selectedCompany.value = company === selectedCompany.value ? null : company;
+const preloadImage = (src) => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = src;
+    preloadingImage.value = img;
+  });
+};
+
+const selectCompany = async (company) => {
+  if (company === selectedCompany.value) {
+    selectedCompany.value = null;
+    return;
+  }
+
+  imageLoaded.value = false;
+  const logoSrc = getCompanyDetailLogoPath(company);
+
+  preloadImage(logoSrc).then((success) => {
+    imageLoaded.value = success;
+  });
+
+  selectedCompany.value = company;
 }
 
-// Cerrar información de compañía
 const closeCompanyInfo = () => {
   selectedCompany.value = null;
+  imageLoaded.value = false;
 }
 
-// Crear un bus de eventos global o usar provide/inject
 const eventBus = inject('eventBus', null);
 
-// Escuchar el evento de selección de región desde RegionSidebar
 onMounted(() => {
   if (eventBus) {
     eventBus.on('region-selected', () => {
       selectedCompany.value = null;
+      imageLoaded.value = false;
     });
   }
 
-  // Alternativamente, escucha directamente cambios en regionId
   watch(() => props.regionId, () => {
     selectedCompany.value = null;
+    imageLoaded.value = false;
   });
 
-  // También podemos escuchar un evento personalizado a nivel de ventana
-  window.addEventListener('region-change', () => {
+  const handleRegionChange = () => {
     selectedCompany.value = null;
+    imageLoaded.value = false;
+  };
+
+  window.addEventListener('region-change', handleRegionChange);
+
+  onBeforeUnmount(() => {
+    window.removeEventListener('region-change', handleRegionChange);
   });
 });
 
-// Limpiar los event listeners cuando se desmonta el componente
 onBeforeUnmount(() => {
   if (eventBus) {
     eventBus.off('region-selected');
   }
-
-  window.removeEventListener('region-change', () => {
-    selectedCompany.value = null;
-  });
+  preloadingImage.value = null;
 });
 </script>
 
@@ -76,6 +113,7 @@ onBeforeUnmount(() => {
             v-for="company in companies"
             :key="company.id"
             class="company-button"
+            :class="{ 'company-button-small': companies.length > 20 }"
             @click="selectCompany(company)"
         >
           <LazyImage
@@ -87,15 +125,18 @@ onBeforeUnmount(() => {
         </button>
       </div>
 
-      <!-- Vista de detalle de empresa -->
       <div v-else key="company-detail" class="company-detail">
         <div class="company-card">
           <div class="company-logo-container">
-            <LazyImage
-                :src="getCompanyDetailLogoPath(selectedCompany)"
-                :alt="selectedCompany.name"
-                :img-class="'company-detail-logo'"
-            />
+            <div class="logo-wrapper">
+              <LazyImage
+                  v-if="imageLoaded"
+                  :src="getCompanyDetailLogoPath(selectedCompany)"
+                  :alt="selectedCompany.name"
+                  :img-class="'company-detail-logo fade-in'"
+              />
+              <div v-else class="logo-placeholder"></div>
+            </div>
           </div>
 
           <div class="company-info">
@@ -202,7 +243,7 @@ onBeforeUnmount(() => {
   opacity: 0;
   transform: translateY(20px);
 
-  @for $i from 1 through 20 {
+  @for $i from 1 through 30 {
     &:nth-child(#{$i}) {
       animation-delay: #{$i * 0.05}s;
     }
@@ -213,6 +254,11 @@ onBeforeUnmount(() => {
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  &.company-button-small {
+    width: 220px;
+    height: 220px;
   }
 
   .company-logo {
@@ -233,7 +279,6 @@ onBeforeUnmount(() => {
     background-color: rgba(255, 255, 255, 0.4);
     border-radius: 24px;
     width: 90%;
-    max-width: 950px;
     padding: 3.3rem;
     box-shadow: 0 5px 30px rgba(0, 0, 0, 0.1);
     position: relative;
@@ -242,11 +287,37 @@ onBeforeUnmount(() => {
     .company-logo-container {
       text-align: center;
       margin: 2rem 0;
+      height: 300px;
+
+      // Nuevo contenedor para gestionar la carga de imágenes
+      .logo-wrapper {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
       .company-detail-logo {
         max-width: 100%;
         max-height: 300px;
         object-fit: contain;
+
+        // Nueva animación para la entrada de imagen
+        &.fade-in {
+          animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      }
+
+      // Placeholder transparente mientras carga la imagen
+      .logo-placeholder {
+        width: 100%;
+        height: 100%;
+        background-color: transparent;
       }
     }
 
@@ -258,7 +329,7 @@ onBeforeUnmount(() => {
       .column {
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: flex-start;
         gap: 20px;
         flex: 1;
       }
@@ -302,7 +373,7 @@ onBeforeUnmount(() => {
           justify-content: flex-end;
 
           .stand-text {
-            font-size: 1.5rem;
+            font-size: 2rem;
             font-weight: bold;
           }
         }
@@ -330,273 +401,94 @@ onBeforeUnmount(() => {
 }
 
 /* Responsive styles */
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 1920px) {
   .company-detail {
-    .company-card {
-      padding: 2.5rem;
-
-      .company-name {
-        font-size: 2.5rem;
-        margin: 3rem 0;
-      }
-
-      .company-info {
-        .info-item {
-          .info-text {
-            font-size: 1.5rem;
-          }
-        }
-      }
-    }
-  }
-
-  .company-button {
-    width: 250px;
-    height: 250px;
-  }
-}
-
-@media screen and (max-width: 992px) {
-  .company-detail {
-    .company-card {
-      padding: 2rem;
-
-      .company-name {
-        font-size: 2.2rem;
-        margin: 2rem 0;
-      }
-
-      .company-info {
-        gap: 1rem;
-
-        .info-item {
-          .info-text {
-            font-size: 1.3rem;
-          }
-        }
-
-        .info-item.stand {
-          bottom: 15px;
-          right: 15px;
-
-          .stand-text {
-            font-size: 1.3rem;
-          }
-        }
-      }
-
-      .back-button {
-        font-size: 1.3rem;
-        bottom: 10px;
-        left: 15px;
-      }
-    }
-  }
-
-  .company-button {
-    width: 220px;
-    height: 220px;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .buttons-section {
-    padding: 1.5rem;
-  }
-
-  .company-detail {
-    padding: 1rem;
 
     .company-card {
       padding: 1.5rem;
-      width: 95%;
 
-      .company-name {
-        font-size: 1.8rem;
-        margin: 1.5rem 0;
+      .company-logo-container {
+        margin: 1rem 0;
+        height: 180px;
+
+        .company-detail-logo {
+          max-height: 180px;
+        }
       }
 
       .company-info {
-        flex-direction: column;
-        gap: 1.5rem;
-
-        .column {
-          gap: 1.5rem;
-        }
 
         .info-item {
-          .info-icon {
-            width: 32px;
-            height: 32px;
-          }
+          &.stand {
+            bottom: 15px;
 
+            .stand-text {
+              font-size: 1.5rem;
+            }
+          }
           .info-text {
             font-size: 1.1rem;
-          }
-        }
-
-        .info-item.stand {
-          position: static;
-          justify-content: center;
-          margin-top: 2rem;
-
-          .stand-text {
-            font-size: 1.2rem;
           }
         }
       }
 
       .back-button {
         font-size: 1.1rem;
-        position: static;
-        margin-top: 2rem;
-        justify-content: center;
-        width: 100%;
       }
     }
   }
-
-  .company-button {
-    width: 170px;
-    height: 170px;
-  }
-}
-
-@media screen and (max-width: 576px) {
-  .buttons-section {
-    padding: 1rem;
-  }
-
-  .buttons-grid {
-    gap: 1rem;
-  }
-
-  .company-detail {
-    padding: 0.5rem;
-
-    .company-card {
-      padding: 1rem;
-      border-radius: 16px;
-
-      .company-name {
-        font-size: 1.5rem;
-        margin: 1rem 0;
-        letter-spacing: 1px;
-      }
-
-      .company-info {
-        gap: 1rem;
-
-        .column {
-          gap: 1rem;
-        }
-
-        .info-item {
-          .info-icon {
-            width: 28px;
-            height: 28px;
-            margin-right: 0.5rem;
-
-            svg {
-              width: 18px;
-              height: 18px;
-            }
-          }
-
-          .info-text {
-            font-size: 0.9rem;
-            word-break: break-word;
-          }
-        }
-      }
-
-      .back-button {
-        font-size: 1rem;
-        margin-top: 1.5rem;
-        padding: 0.4rem 0.8rem;
-      }
-    }
-  }
-
   .company-button {
     width: 130px;
     height: 130px;
   }
 }
 
-@media screen and (max-width: 380px) {
-  .buttons-grid {
-    gap: 0.8rem;
-  }
-
-  .company-button {
-    width: 100px;
-    height: 100px;
-  }
-
+@media screen and (min-width: 1921px) and (max-width: 2560px) {
   .company-detail {
+
     .company-card {
-      .company-name {
-        font-size: 1.3rem;
+      padding: 2rem;
+
+      .company-logo-container {
+        margin: 2rem 0;
+        height: 180px;
+
+        .company-detail-logo {
+          max-height: 180px;
+        }
       }
 
       .company-info {
-        .info-item {
-          .info-icon {
-            width: 24px;
-            height: 24px;
 
-            svg {
-              width: 16px;
-              height: 16px;
+        .info-item {
+          &.stand {
+            bottom: 15px;
+
+            .stand-text {
+              font-size: 2rem;
             }
           }
-
           .info-text {
-            font-size: 0.8rem;
+            font-size: 1.5rem;
           }
-        }
-      }
-    }
-  }
-}
-
-/* Estilos para dispositivos de pantalla pequeña en modo landscape */
-@media screen and (max-height: 600px) and (orientation: landscape) {
-  .company-detail {
-    .company-card {
-      padding: 1.5rem;
-
-      .company-name {
-        font-size: 1.8rem;
-        margin: 1rem 0;
-      }
-
-      .company-info {
-        flex-direction: row;
-
-        .column {
-          gap: 0.8rem;
-        }
-
-        .info-item {
-          .info-text {
-            font-size: 1rem;
-          }
-        }
-
-        .info-item.stand {
-          bottom: 10px;
-          right: 10px;
         }
       }
 
       .back-button {
-        bottom: 10px;
-        left: 10px;
-        font-size: 1rem;
+        font-size: 1.5rem;
       }
     }
+  }
+  .company-button {
+    width: 180px;
+    height: 180px;
+  }
+}
+
+@media screen and (min-width: 2561px) {
+  .company-button {
+    width: 300px;
+    height: 300px;
   }
 }
 </style>

@@ -41,7 +41,6 @@ import sparklingWineIcon from '../assets/images/info/sparkling.png';
   padding: 2rem;
 
   .info-box-title {
-    font-weight: bold;
     margin-bottom: 1rem;
   }
 

@@ -88,7 +88,6 @@ onMounted(() => {
   grid-template-columns: 40% minmax(0, 1fr) 30%;
   height: 100vh;
   width: 100%;
-  font-family: Arial, sans-serif;
   overflow: hidden;
 }
 
